@@ -34,10 +34,15 @@ app.get('/api/prices/:item', async (req, res) => {
                     }
                 })
             let nonZeroPriceItems = items.data.filter(item => item.sell_price_min > 0)
-            let MinPriceItem = nonZeroPriceItems.reduce((prev, current) => {
-                return (prev.sell_price_min < current.sell_price_min) ? prev : current
-            })
-            pricesList.push({ [`T${levelTag}_${enchantment}_${req.params.item}`]: MinPriceItem.sell_price_min })
+            if (!nonZeroPriceItems.length) {
+                pricesList.push({ [`T${levelTag}_${enchantment}_${req.params.item}`]: "No Data" })
+            }
+            else {
+                let MinPriceItem = nonZeroPriceItems.reduce((prev, current) => {
+                    return (prev.sell_price_min < current.sell_price_min) ? prev : current
+                })
+                pricesList.push({ [`T${levelTag}_${enchantment}_${req.params.item}`]: MinPriceItem.sell_price_min })
+            }
         }
     }
     res.header("Content-Type", "application/xml");
