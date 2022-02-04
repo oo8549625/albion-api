@@ -4,7 +4,7 @@ const axios = require("axios")
 const NodeCache = require("node-cache");
 const cache = new NodeCache({ stdTTL: 86400 });
 const app = express()
-const port = 3000
+const port = process.env.PORT || 3000
 
 app.get('/api/prices/:item', async (req, res) => {
     let itemsLevel = req.query.level.split(",") || "4.0,4.1,4.2,4.3,5.0,5.1,5.2,5.3,6.0,6.1,6.2,6.3,7.0,7.1,7.2,7.3,8.0,8.1,8.2,8.3"
