@@ -34,13 +34,18 @@ app.get('/api/prices/resource/:item', async (req, res) => {
                 url = `https://www.albion-online-data.com/api/v2/stats/Prices/${name}.json`
             }
             console.log(url)
-            let items = await axios.get(
-                url,
-                {
-                    params: {
-                        locations: location
-                    }
-                })
+            try {
+                var items = await axios.get(
+                    url,
+                    {
+                        params: {
+                            locations: location
+                        }
+                    })
+            }
+            catch (err) {
+                console.log(err.message)
+            }
             let nonZeroPriceItems = items.data.filter(item => item.sell_price_min > 0)
             if (!nonZeroPriceItems.length) {
                 let MinPriceItem = items.data.reduce((prev, current) => {
@@ -135,6 +140,46 @@ app.get('/api/prices/equip/:item', async (req, res) => {
     if (!findNoData) {
         cache.set(req.originalUrl, itemPricesList);
     }
+    res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
+})
+
+app.get('/api/prices/artifact/:item', async (req, res) => {
+    let { level, location } = req.query || ""
+    if (typeof level === "undefined") {
+        var itemsLevelList = "4,5,6,7,8".split(",")
+    }
+    else {
+        var itemsLevelList = level.split(",")
+    }
+    let itemPricesList = []
+    let itemList = []
+    if (cache.has(req.originalUrl)) {
+        itemPricesList = cache.get(req.originalUrl)
+    }
+    else {
+        for (let itemlevel of itemsLevelList) {
+            let levelTag = itemlevel
+            let name = `T${levelTag}_${req.params.item}`
+            let url = `https://www.albion-online-data.com/api/v2/stats/Prices/${name}.json`
+            let item = []
+            console.log(url)
+            let items = await axios.get(
+                url,
+                {
+                    params: {
+                        locations: location
+                    }
+                })
+            item.push({ name: `T${levelTag}_${req.params.item}` })
+            item.push({ price: items.data[0].buy_price_max })
+            itemList.push(item)
+        }
+    }
+    res.header("Content-Type", "application/xml");
+    for (let item of itemList) {
+        itemPricesList.push({ item: item })
+    }
+    cache.set(req.originalUrl, itemPricesList);
     res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
 })
 
