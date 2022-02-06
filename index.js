@@ -1,7 +1,6 @@
 const express = require('express')
 const xml = require("xml");
 const axios = require("axios")
-const NodeCache = require("node-cache");
 const app = express()
 const port = process.env.PORT || 3000
 const redis = require("redis");
