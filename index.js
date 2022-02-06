@@ -2,9 +2,10 @@ const express = require('express')
 const xml = require("xml");
 const axios = require("axios")
 const NodeCache = require("node-cache");
-const cache = new NodeCache({ stdTTL: 86400 });
 const app = express()
 const port = process.env.PORT || 3000
+const redis = require("redis");
+const client = redis.createClient({ url: 'redis://34.138.215.241:6379' });
 
 app.get('/api/prices/resource/:item', async (req, res) => {
     let { level, location } = req.query || ""
@@ -16,8 +17,8 @@ app.get('/api/prices/resource/:item', async (req, res) => {
     }
     let itemPricesList = []
     let itemList = []
-    if (cache.has(req.originalUrl)) {
-        itemPricesList = cache.get(req.originalUrl)
+    if (await client.exists(req.originalUrl)) {
+        itemPricesList = JSON.parse(await client.get(req.originalUrl))
     }
     else {
         for (let itemlevel of itemsLevelList) {
@@ -63,17 +64,13 @@ app.get('/api/prices/resource/:item', async (req, res) => {
             }
             itemList.push(item)
         }
+        for (let item of itemList) {
+            itemPricesList.push({ item: item })
+        }
+        client.set(req.originalUrl, JSON.stringify(itemPricesList));
+        client.expire(req.originalUrl, 24 * 60 * 60)
     }
     res.header("Content-Type", "application/xml");
-    for (let item of itemList) {
-        itemPricesList.push({ item: item })
-    }
-    let findNoData = itemList.find((item, index, array) => {
-        return item[1].price === "No Data"
-    })
-    if (!findNoData) {
-        cache.set(req.originalUrl, itemPricesList);
-    }
     res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
 })
 
@@ -87,8 +84,8 @@ app.get('/api/prices/equip/:item', async (req, res) => {
     }
     let itemPricesList = []
     let itemList = []
-    if (cache.has(req.originalUrl)) {
-        itemPricesList = cache.get(req.originalUrl)
+    if (await client.exists(req.originalUrl)) {
+        itemPricesList = JSON.parse(await client.get(req.originalUrl))
     }
     else {
         for (let itemlevel of itemsLevelList) {
@@ -129,17 +126,13 @@ app.get('/api/prices/equip/:item', async (req, res) => {
             }
             itemList.push(item)
         }
+        for (let item of itemList) {
+            itemPricesList.push({ item: item })
+        }
+        client.set(req.originalUrl, JSON.stringify(itemPricesList));
+        client.expire(req.originalUrl, 24 * 60 * 60)
     }
     res.header("Content-Type", "application/xml");
-    for (let item of itemList) {
-        itemPricesList.push({ item: item })
-    }
-    let findNoData = itemList.find((item, index, array) => {
-        return item[1].price === "No Data"
-    })
-    if (!findNoData) {
-        cache.set(req.originalUrl, itemPricesList);
-    }
     res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
 })
 
@@ -153,8 +146,8 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
     }
     let itemPricesList = []
     let itemList = []
-    if (cache.has(req.originalUrl)) {
-        itemPricesList = cache.get(req.originalUrl)
+    if (await client.exists(req.originalUrl)) {
+        itemPricesList = JSON.parse(await client.get(req.originalUrl))
     }
     else {
         for (let itemlevel of itemsLevelList) {
@@ -174,15 +167,17 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
             item.push({ price: items.data[0].buy_price_max })
             itemList.push(item)
         }
+        for (let item of itemList) {
+            itemPricesList.push({ item: item })
+        }
+        client.set(req.originalUrl, JSON.stringify(itemPricesList));
+        client.expire(req.originalUrl, 24 * 60 * 60)
     }
     res.header("Content-Type", "application/xml");
-    for (let item of itemList) {
-        itemPricesList.push({ item: item })
-    }
-    cache.set(req.originalUrl, itemPricesList);
     res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
 })
 
-app.listen(port, () => {
+app.listen(port, async () => {
+    await client.connect()
     console.log(`Example app listening on port ${port}`)
 })

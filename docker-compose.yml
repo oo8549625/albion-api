@@ -1,0 +1,19 @@
+version: '3.3'
+services:
+  albion-api:
+    image: owen0222/albion-api:latest
+    network_mode: host
+    restart: always
+    environment:
+      - PORT=80
+    container_name: albion-api
+
+  redis:
+    image: redis:6.2.5
+    container_name: redis
+    restart: always
+    network_mode: host
+    ports:
+      - '6379:6379'
+    volumes:
+      - /data:/data
