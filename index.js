@@ -5,6 +5,16 @@ const app = express()
 const port = process.env.PORT || 3000
 const redis = require("redis");
 const client = redis.createClient({ url: 'redis://34.138.215.241:6379' });
+const urls = require("./urls.json").urls
+var index = 0
+
+async function cache() {
+    if (index >= urls.length) {
+        index = 0
+    }
+    axios.get(urls[index++])
+    setTimeout(cache, 30000)
+}
 
 app.get('/api/prices/resource/:item', async (req, res) => {
     let { level, location } = req.query || ""
@@ -179,4 +189,5 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
 app.listen(port, async () => {
     await client.connect()
     console.log(`Example app listening on port ${port}`)
+    cache()
 })
