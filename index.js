@@ -149,7 +149,7 @@ app.get('/api/prices/equip/:item', async (req, res) => {
 app.get('/api/prices/artifact/:item', async (req, res) => {
     let { level, location } = req.query || ""
     if (typeof level === "undefined") {
-        var itemsLevelList = "4,5,6,7,8".split(",")
+        var itemsLevelList = "4.0,4.1,4.2,4.3,5.0,5.1,5.2,5.3,6.0,6.1,6.2,6.3,7.0,7.1,7.2,7.3,8.0,8.1,8.2,8.3".split(",")
     }
     else {
         var itemsLevelList = level.split(",")
@@ -161,7 +161,8 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
     }
     else {
         for (let itemlevel of itemsLevelList) {
-            let levelTag = itemlevel
+            let enchantment = itemlevel.replace(/\d\./, "")
+            let levelTag = itemlevel.replace(/\.\d/, "")
             let name = `T${levelTag}_${req.params.item}`
             let url = `https://www.albion-online-data.com/api/v2/stats/Prices/${name}.json`
             let item = []
@@ -173,7 +174,7 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
                         locations: location
                     }
                 })
-            item.push({ name: `T${levelTag}_${req.params.item}` })
+            item.push({ name: `T${levelTag}_${req.params.item}@${enchantment}` })
             item.push({ price: items.data[0].buy_price_max })
             itemList.push(item)
         }
