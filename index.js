@@ -5,6 +5,7 @@ const app = express()
 const port = process.env.PORT || 3000
 const redis = require("redis");
 const client = redis.createClient({ url: process.env.REDIS_URL || 'redis://34.138.215.241:6379' });
+const expires = 24 * 60 * 60 * 3
 const urls = require("./urls.json").urls
 var index = 0
 
@@ -78,7 +79,7 @@ app.get('/api/prices/resource/:item', async (req, res) => {
             itemPricesList.push({ item: item })
         }
         client.set(req.originalUrl, JSON.stringify(itemPricesList));
-        client.expire(req.originalUrl, 24 * 60 * 60)
+        client.expire(req.originalUrl, expires)
     }
     res.header("Content-Type", "application/xml");
     res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
@@ -140,7 +141,7 @@ app.get('/api/prices/equip/:item', async (req, res) => {
             itemPricesList.push({ item: item })
         }
         client.set(req.originalUrl, JSON.stringify(itemPricesList));
-        client.expire(req.originalUrl, 24 * 60 * 60)
+        client.expire(req.originalUrl, expires)
     }
     res.header("Content-Type", "application/xml");
     res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
@@ -182,7 +183,7 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
             itemPricesList.push({ item: item })
         }
         client.set(req.originalUrl, JSON.stringify(itemPricesList));
-        client.expire(req.originalUrl, 24 * 60 * 60)
+        client.expire(req.originalUrl, expires)
     }
     res.header("Content-Type", "application/xml");
     res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
