@@ -20,7 +20,7 @@ async function cache() {
 app.get('/api/prices/resource/:item', async (req, res) => {
     let { level, location } = req.query || ""
     if (typeof level === "undefined") {
-        var itemsLevelList = "4.0,4.1,4.2,4.3,5.0,5.1,5.2,5.3,6.0,6.1,6.2,6.3,7.0,7.1,7.2,7.3,8.0,8.1,8.2,8.3".split(",")
+        var itemsLevelList = "4.0,4.1,4.2,5.0,5.1,5.2,6.0,6.1".split(",")
     }
     else {
         var itemsLevelList = level.split(",")
@@ -87,7 +87,7 @@ app.get('/api/prices/resource/:item', async (req, res) => {
 app.get('/api/prices/equip/:item', async (req, res) => {
     let { level, location } = req.query || ""
     if (typeof level === "undefined") {
-        var itemsLevelList = "4.0,4.1,4.2,4.3,5.0,5.1,5.2,5.3,6.0,6.1,6.2,6.3,7.0,7.1,7.2,7.3,8.0,8.1,8.2,8.3".split(",")
+        var itemsLevelList = "4.0,4.1,4.2,5.0,5.1,5.2,6.0,6.1".split(",")
     }
     else {
         var itemsLevelList = level.split(",")
@@ -149,7 +149,7 @@ app.get('/api/prices/equip/:item', async (req, res) => {
 app.get('/api/prices/artifact/:item', async (req, res) => {
     let { level, location } = req.query || ""
     if (typeof level === "undefined") {
-        var itemsLevelList = "4.0,4.1,4.2,4.3,5.0,5.1,5.2,5.3,6.0,6.1,6.2,6.3,7.0,7.1,7.2,7.3,8.0,8.1,8.2,8.3".split(",")
+        var itemsLevelList = "4.0,4.1,4.2,5.0,5.1,5.2,6.0,6.1".split(",")
     }
     else {
         var itemsLevelList = level.split(",")
