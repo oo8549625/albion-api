@@ -191,5 +191,5 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
 app.listen(port, async () => {
     await client.connect()
     console.log(`Example app listening on port ${port}`)
-    // cache()
+    cache()
 })
