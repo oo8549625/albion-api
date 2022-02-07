@@ -12,6 +12,7 @@ async function cache() {
     if (index >= urls.length) {
         index = 0
     }
+    console.log("DEBUG: cache url " + urls[index])
     axios.get(urls[index++])
     setTimeout(cache, 30000)
 }
