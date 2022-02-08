@@ -78,8 +78,11 @@ app.get('/api/prices/resource/:item', async (req, res) => {
         for (let item of itemList) {
             itemPricesList.push({ item: item })
         }
-        client.set(req.originalUrl, JSON.stringify(itemPricesList));
-        client.expire(req.originalUrl, expires)
+        let zeroPriceItem = itemPricesList.find(data => data.item[1].price === 0)
+        if (typeof (zeroPriceItem) == "undefined") {
+            client.set(req.originalUrl, JSON.stringify(itemPricesList));
+            client.expire(req.originalUrl, expires)
+        }
     }
     res.header("Content-Type", "application/xml");
     res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
@@ -140,8 +143,11 @@ app.get('/api/prices/equip/:item', async (req, res) => {
         for (let item of itemList) {
             itemPricesList.push({ item: item })
         }
-        client.set(req.originalUrl, JSON.stringify(itemPricesList));
-        client.expire(req.originalUrl, expires)
+        let zeroPriceItem = itemPricesList.find(data => data.item[1].price === 0)
+        if (typeof (zeroPriceItem) == "undefined") {
+            client.set(req.originalUrl, JSON.stringify(itemPricesList));
+            client.expire(req.originalUrl, expires)
+        }
     }
     res.header("Content-Type", "application/xml");
     res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
@@ -182,8 +188,11 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
         for (let item of itemList) {
             itemPricesList.push({ item: item })
         }
-        client.set(req.originalUrl, JSON.stringify(itemPricesList));
-        client.expire(req.originalUrl, expires)
+        let zeroPriceItem = itemPricesList.find(data => data.item[1].price === 0)
+        if (typeof (zeroPriceItem) == "undefined") {
+            client.set(req.originalUrl, JSON.stringify(itemPricesList));
+            client.expire(req.originalUrl, expires)
+        }
     }
     res.header("Content-Type", "application/xml");
     res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
