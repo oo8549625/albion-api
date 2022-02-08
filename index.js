@@ -58,21 +58,11 @@ app.get('/api/prices/resource/:item', async (req, res) => {
             catch (err) {
                 console.log(err.message)
             }
-            let nonZeroPriceItems = items.data.filter(item => item.sell_price_min > 0)
-            if (!nonZeroPriceItems.length) {
-                let MinPriceItem = items.data.reduce((prev, current) => {
-                    return (prev.buy_price_max > current.buy_price_max) ? prev : current
-                })
-                item.push({ name: `T${levelTag}_${enchantment}_${req.params.item}` })
-                item.push({ price: MinPriceItem.buy_price_max })
-            }
-            else {
-                let MinPriceItem = nonZeroPriceItems.reduce((prev, current) => {
-                    return (prev.sell_price_min < current.sell_price_min) ? prev : current
-                })
-                item.push({ name: `T${levelTag}_${enchantment}_${req.params.item}` })
-                item.push({ price: MinPriceItem.sell_price_min })
-            }
+            let MinPriceItem = items.data.reduce((prev, current) => {
+                return (prev.buy_price_max > current.buy_price_max) ? prev : current
+            })
+            item.push({ name: `T${levelTag}_${enchantment}_${req.params.item}` })
+            item.push({ price: MinPriceItem.buy_price_max })
             itemList.push(item)
         }
         for (let item of itemList) {
@@ -123,21 +113,11 @@ app.get('/api/prices/equip/:item', async (req, res) => {
                         locations: location
                     }
                 })
-            let nonZeroPriceItems = items.data.filter(item => item.sell_price_min > 0)
-            if (!nonZeroPriceItems.length) {
-                let MinPriceItem = items.data.reduce((prev, current) => {
-                    return (prev.buy_price_max > current.buy_price_max) ? prev : current
-                })
-                item.push({ name: `T${levelTag}_${enchantment}_${req.params.item}` })
-                item.push({ price: MinPriceItem.buy_price_max })
-            }
-            else {
-                let MinPriceItem = nonZeroPriceItems.reduce((prev, current) => {
-                    return (prev.sell_price_min < current.sell_price_min) ? prev : current
-                })
-                item.push({ name: `T${levelTag}_${enchantment}_${req.params.item}` })
-                item.push({ price: MinPriceItem.sell_price_min })
-            }
+            let MinPriceItem = nonZeroPriceItems.reduce((prev, current) => {
+                return (prev.sell_price_min < current.sell_price_min) ? prev : current
+            })
+            item.push({ name: `T${levelTag}_${enchantment}_${req.params.item}` })
+            item.push({ price: MinPriceItem.sell_price_min })
             itemList.push(item)
         }
         for (let item of itemList) {
