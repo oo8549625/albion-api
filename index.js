@@ -4,6 +4,7 @@ const axios = require("axios")
 const app = express()
 const port = process.env.PORT || 3000
 const redis = require("redis");
+const e = require('express');
 const client = redis.createClient({ url: process.env.REDIS_URL || 'redis://34.138.215.241:6379' });
 const expires = 24 * 60 * 60 * 3
 const urls = require("./urls.json").urls
@@ -114,11 +115,17 @@ app.get('/api/prices/equip/:item', async (req, res) => {
                     }
                 })
             let nonZeroPriceItems = items.data.filter(item => item.sell_price_min > 0)
-            let MinPriceItem = nonZeroPriceItems.reduce((prev, current) => {
-                return (prev.sell_price_min < current.sell_price_min) ? prev : current
-            })
+            let price
+            if (nonZeroPriceItems.length) {
+                let MinPriceItem = nonZeroPriceItems.reduce((prev, current) => {
+                    return (prev.sell_price_min < current.sell_price_min) ? prev : current
+                })
+                price = MinPriceItem.sell_price_min
+            } else {
+                price = 0
+            }
             item.push({ name: `T${levelTag}_${enchantment}_${req.params.item}` })
-            item.push({ price: MinPriceItem.sell_price_min })
+            item.push({ price: price })
             itemList.push(item)
         }
         for (let item of itemList) {
