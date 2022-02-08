@@ -113,7 +113,7 @@ app.get('/api/prices/equip/:item', async (req, res) => {
                         locations: location
                     }
                 })
-            let MinPriceItem = nonZeroPriceItems.reduce((prev, current) => {
+            let MinPriceItem = items.reduce((prev, current) => {
                 return (prev.sell_price_min < current.sell_price_min) ? prev : current
             })
             item.push({ name: `T${levelTag}_${enchantment}_${req.params.item}` })
