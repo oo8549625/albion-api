@@ -6,7 +6,7 @@ const port = process.env.PORT || 3000
 const redis = require("redis");
 const e = require('express');
 const client = redis.createClient({ url: process.env.REDIS_URL || 'redis://34.138.215.241:6379' });
-const expires = 24 * 60 * 60 * 3
+const expires = 24 * 60 * 60 * 7
 const urls = require("./urls.json").urls
 var index = 0
 
