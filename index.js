@@ -6,8 +6,8 @@ const axios = require('axios');
 const port = process.env.PORT || 3000;
 const redis = require('redis');
 const client = redis.createClient({
-    url: process.env.REDIS_URL || 'tcp-mo2.mogenius.io:32904',
-    password: process.env.REDIS_PASSWORD || 'EoIHt5FiUMK7Ivagp7Dn67DUnbV5Lv'
+    url: process.env.REDIS_URL || '',
+    password: process.env.REDIS_PASSWORD || ''
 });
 const expires = 24 * 60 * 60 * 7;
 const defaultLevel = '4.0,4.1,4.2,5.0,5.1,5.2,6.0,6.1';
