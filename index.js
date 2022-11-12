@@ -141,7 +141,11 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
 });
 
 app.listen(port, async () => {
-    await client.connect()
+    try {
+        await client.connect();
+    } catch (error) {
+        console.log(error);
+    }
     console.log(`Example app listening on port ${port}`)
 });
 
