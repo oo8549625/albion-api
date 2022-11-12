@@ -44,7 +44,7 @@ app.get('/api/prices/resource/:item', async (req, res) => {
         try {
             let items = await Promise.all(resolvedPromisesArray);
             itemPricesList = items.map(res => {
-                return { item: [{ name: res.data[0].item_id }, { price: res.data[0].sell_price_min }] };
+                return { item: [{ name: res.data[0].item_id }, { price: res.data[0].buy_price_max }] };
             })
         } catch (error) {
             res.status(500).send(error);
@@ -128,7 +128,7 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
         try {
             let items = await Promise.all(resolvedPromisesArray);
             itemPricesList = items.map(res => {
-                return { item: [{ name: res.data[0].item_id }, { price: res.data[0].sell_price_min }] };
+                return { item: [{ name: res.data[0].item_id }, { price: res.data[0].buy_price_max }] };
             })
         } catch (error) {
             res.status(500).send(error);
