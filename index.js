@@ -36,9 +36,9 @@ app.get('/api/prices/resource/:item', async (req, res) => {
             let enchantment = itemlevel.replace(/\d\./, '')
             let levelTag = itemlevel.replace(/\.\d/, '')
             let name = enchantment > 0 ? `T${levelTag}_${req.params.item}_LEVEL${enchantment}@${enchantment}` : `T${levelTag}_${req.params.item}`
-            let url = `${albion_url}/api/v2/stats/Prices/${name}.json`
+            let url = `${albion_url}/api/v2/stats/Prices/${name}.json?locations=${location || defaultLocation}`
             console.log('獲取資源URL: ' + url) //debug
-            resolvedPromisesArray.push(axios.get(url, { params: { locations: location || defaultLocation } }));
+            resolvedPromisesArray.push(axios.get(url));
         }
         console.log('------------------------------獲取資源URL分隔線------------------------------') //debug
         try {
@@ -74,9 +74,9 @@ app.get('/api/prices/equip/:item', async (req, res) => {
             let enchantment = itemlevel.replace(/\d\./, '')
             let levelTag = itemlevel.replace(/\.\d/, '')
             let name = enchantment > 0 ? `T${levelTag}_${req.params.item}@${enchantment}` : `T${levelTag}_${req.params.item}`
-            let url = `${albion_url}/api/v2/stats/Prices/${name}.json`
+            let url = `${albion_url}/api/v2/stats/Prices/${name}.json?locations=${location || defaultLocation}`
             console.log('獲取裝備URL: ' + url) //debug
-            resolvedPromisesArray.push(axios.get(url, { params: { locations: location || defaultLocation } }))
+            resolvedPromisesArray.push(axios.get(url))
         }
         console.log('------------------------------獲取裝備URL分隔線------------------------------') //debug
         try {
@@ -120,9 +120,9 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
         for (let itemlevel of itemsLevelList) {
             let levelTag = itemlevel.replace(/\.\d/, '')
             let name = `T${levelTag}_${req.params.item}`
-            let url = `${albion_url}/api/v2/stats/Prices/${name}.json`
+            let url = `${albion_url}/api/v2/stats/Prices/${name}.json?locations=${location || defaultLocation}`
             console.log('獲取神器URL: ' + url) //debug
-            resolvedPromisesArray.push(axios.get(url, { params: { locations: location || defaultLocation } }))
+            resolvedPromisesArray.push(axios.get(url))
         }
         console.log('------------------------------獲取神器URL分隔線------------------------------') //debug
         try {
