@@ -13,6 +13,9 @@ const expires = 24 * 60 * 60 * 7;
 const defaultLevel = '4.0,4.1,4.2,5.0,5.1,5.2,6.0,6.1';
 const defaultLocation = 'Thetford';
 const albion_url = 'https://www.albion-online-data.com';
+(async () => {
+    await client.connect();
+})();
 
 app.use(express.static('public'));
 app.get('/', (req, res) => {
@@ -23,7 +26,6 @@ app.get('/api/prices/resource/:item', async (req, res) => {
     let itemsLevelList = level ? level.split(',') : defaultLevel.split(',')
     let itemPricesList = []
     try {
-        await client.connect();
         itemPricesList = JSON.parse(await client.get(req.originalUrl))
     } catch (error) {
         console.log(error)
@@ -62,7 +64,6 @@ app.get('/api/prices/equip/:item', async (req, res) => {
     let itemsLevelList = level ? level.split(',') : defaultLevel.split(',')
     let itemPricesList = []
     try {
-        await client.connect();
         itemPricesList = JSON.parse(await client.get(req.originalUrl))
     } catch (error) {
         console.log(error)
@@ -110,7 +111,6 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
     let itemsLevelList = level ? level.split(',') : defaultLevel.split(',')
     let itemPricesList = []
     try {
-        await client.connect();
         itemPricesList = JSON.parse(await client.get(req.originalUrl))
     } catch (error) {
         console.log(error)
