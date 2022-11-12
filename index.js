@@ -9,11 +9,13 @@ const client = redis.createClient({
     url: process.env.REDIS_URL || 'redis://default:redispw@localhost:49153',
     password: process.env.REDIS_PASSWORD || ''
 });
+client.on("error", (err) => console.error("redis client err", err));
 const expires = 24 * 60 * 60 * 7;
 const defaultLevel = '4.0,4.1,4.2,5.0,5.1,5.2,6.0,6.1';
 const defaultLocation = 'Thetford';
 const albion_url = 'https://www.albion-online-data.com';
 (async () => {
+
     await client.connect();
 })();
 
