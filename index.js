@@ -23,6 +23,7 @@ app.get('/api/prices/resource/:item', async (req, res) => {
     let itemsLevelList = level ? level.split(',') : defaultLevel.split(',')
     let itemPricesList = []
     try {
+        await client.connect();
         itemPricesList = JSON.parse(await client.get(req.originalUrl))
     } catch (error) {
         console.log(error)
@@ -61,6 +62,7 @@ app.get('/api/prices/equip/:item', async (req, res) => {
     let itemsLevelList = level ? level.split(',') : defaultLevel.split(',')
     let itemPricesList = []
     try {
+        await client.connect();
         itemPricesList = JSON.parse(await client.get(req.originalUrl))
     } catch (error) {
         console.log(error)
@@ -108,6 +110,7 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
     let itemsLevelList = level ? level.split(',') : defaultLevel.split(',')
     let itemPricesList = []
     try {
+        await client.connect();
         itemPricesList = JSON.parse(await client.get(req.originalUrl))
     } catch (error) {
         console.log(error)
@@ -141,11 +144,6 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
 });
 
 app.listen(port, async () => {
-    try {
-        await client.connect();
-    } catch (error) {
-        console.log(error);
-    }
     console.log(`Example app listening on port ${port}`)
 });
 
