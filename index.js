@@ -4,70 +4,38 @@ const axios = require("axios")
 const app = express()
 const port = process.env.PORT || 3000
 const redis = require("redis");
-const e = require('express');
-const client = redis.createClient({ url: process.env.REDIS_URL || 'redis://34.138.215.241:6379' });
+const client = redis.createClient({
+    url: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
+    password: process.env.REDIS_PASSWORD || "secret"
+});
 const expires = 24 * 60 * 60 * 7
-const urls = require("./urls.json").urls
-var index = 0
-
-async function cache() {
-    if (index >= urls.length) {
-        index = 0
-    }
-    console.log("DEBUG: cache url " + urls[index])
-    axios.get(urls[index++])
-    setTimeout(cache, 30000)
-}
+const defaultLevel = "4.0,4.1,4.2,5.0,5.1,5.2,6.0,6.1"
 
 app.get('/api/prices/resource/:item', async (req, res) => {
     let { level, location } = req.query || ""
-    if (typeof level === "undefined") {
-        var itemsLevelList = "4.0,4.1,4.2,5.0,5.1,5.2,6.0,6.1".split(",")
-    }
-    else {
-        var itemsLevelList = level.split(",")
-    }
+    let itemsLevelList = level ? level.split(",") : defaultLevel.split(",")
     let itemPricesList = []
-    let itemList = []
     if (await client.exists(req.originalUrl)) {
         itemPricesList = JSON.parse(await client.get(req.originalUrl))
     }
     else {
+        let resolvedPromisesArray = []
         for (let itemlevel of itemsLevelList) {
             let enchantment = itemlevel.replace(/\d\./, "")
             let levelTag = itemlevel.replace(/\.\d/, "")
-            let url, name
-            let item = []
-            if (enchantment > 0) {
-                name = `T${levelTag}_${req.params.item}_LEVEL${enchantment}@${enchantment}`
-                url = `https://www.albion-online-data.com/api/v2/stats/Prices/${name}.json`
-            }
-            else {
-                name = `T${levelTag}_${req.params.item}`
-                url = `https://www.albion-online-data.com/api/v2/stats/Prices/${name}.json`
-            }
-            console.log(url)
-            try {
-                var items = await axios.get(
-                    url,
-                    {
-                        params: {
-                            locations: location
-                        }
-                    })
-            }
-            catch (err) {
-                console.log(err.message)
-            }
-            let MinPriceItem = items.data.reduce((prev, current) => {
-                return (prev.buy_price_max > current.buy_price_max) ? prev : current
-            })
-            item.push({ name: `T${levelTag}_${enchantment}_${req.params.item}` })
-            item.push({ price: MinPriceItem.buy_price_max })
-            itemList.push(item)
+            let name = enchantment > 0 ? `T${levelTag}_${req.params.item}_LEVEL${enchantment}@${enchantment}` : `T${levelTag}_${req.params.item}`
+            let url = `https://www.albion-online-data.com/api/v2/stats/Prices/${name}.json`
+            console.log("獲取資源URL: " + url) //debug
+            resolvedPromisesArray.push(axios.get(url, { params: { locations: location } }));
         }
-        for (let item of itemList) {
-            itemPricesList.push({ item: item })
+        console.log("------------------------------獲取資源URL分隔線------------------------------") //debug
+        try {
+            let items = await Promise.all(resolvedPromisesArray);
+            itemPricesList = items.map(res => {
+                return { item: [{ name: res.data[0].item_id }, { price: res.data[0].sell_price_min }] };
+            })
+        } catch (error) {
+            res.status(500).send(error);
         }
         let zeroPriceItem = itemPricesList.find(data => data.item[1].price === 0)
         if (typeof (zeroPriceItem) == "undefined") {
@@ -81,55 +49,38 @@ app.get('/api/prices/resource/:item', async (req, res) => {
 
 app.get('/api/prices/equip/:item', async (req, res) => {
     let { level, location } = req.query || ""
-    if (typeof level === "undefined") {
-        var itemsLevelList = "4.0,4.1,4.2,5.0,5.1,5.2,6.0,6.1".split(",")
-    }
-    else {
-        var itemsLevelList = level.split(",")
-    }
+    let itemsLevelList = level ? level.split(",") : defaultLevel.split(",")
     let itemPricesList = []
-    let itemList = []
     if (await client.exists(req.originalUrl)) {
         itemPricesList = JSON.parse(await client.get(req.originalUrl))
     }
     else {
+        let resolvedPromisesArray = []
         for (let itemlevel of itemsLevelList) {
             let enchantment = itemlevel.replace(/\d\./, "")
             let levelTag = itemlevel.replace(/\.\d/, "")
-            let url, name
-            let item = []
-            if (enchantment > 0) {
-                name = `T${levelTag}_${req.params.item}@${enchantment}`
-                url = `https://www.albion-online-data.com/api/v2/stats/Prices/${name}.json`
-            }
-            else {
-                name = `T${levelTag}_${req.params.item}`
-                url = `https://www.albion-online-data.com/api/v2/stats/Prices/${name}.json`
-            }
-            console.log(url)
-            let items = await axios.get(
-                url,
-                {
-                    params: {
-                        locations: location
+            let name = enchantment > 0 ? `T${levelTag}_${req.params.item}@${enchantment}` : `T${levelTag}_${req.params.item}`
+            let url = `https://www.albion-online-data.com/api/v2/stats/Prices/${name}.json`
+            console.log("獲取裝備URL: " + url) //debug
+            resolvedPromisesArray.push(axios.get(url, { params: { locations: location } }))
+        }
+        console.log("------------------------------獲取裝備URL分隔線------------------------------") //debug
+        try {
+            let items = await Promise.all(resolvedPromisesArray);
+            itemPricesList = items.map(res => {
+                let item = res.data.reduce((prev, curr) => {
+                    if (prev.sell_price_min == 0) {
+                        return curr
+                    } else if (curr.sell_price_min == 0) {
+                        return prev
+                    } else {
+                        return prev.sell_price_min < curr.sell_price_min ? prev : curr
                     }
                 })
-            let nonZeroPriceItems = items.data.filter(item => item.sell_price_min > 0)
-            let price
-            if (nonZeroPriceItems.length) {
-                let MinPriceItem = nonZeroPriceItems.reduce((prev, current) => {
-                    return (prev.sell_price_min < current.sell_price_min) ? prev : current
-                })
-                price = MinPriceItem.sell_price_min
-            } else {
-                price = 0
-            }
-            item.push({ name: `T${levelTag}_${enchantment}_${req.params.item}` })
-            item.push({ price: price })
-            itemList.push(item)
-        }
-        for (let item of itemList) {
-            itemPricesList.push({ item: item })
+                return { item: [{ name: item.item_id }, { price: item.sell_price_min }] };
+            })
+        } catch (error) {
+            res.status(500).send(error);
         }
         let zeroPriceItem = itemPricesList.find(data => data.item[1].price === 0)
         if (typeof (zeroPriceItem) == "undefined") {
@@ -143,38 +94,28 @@ app.get('/api/prices/equip/:item', async (req, res) => {
 
 app.get('/api/prices/artifact/:item', async (req, res) => {
     let { level, location } = req.query || ""
-    if (typeof level === "undefined") {
-        var itemsLevelList = "4.0,4.1,4.2,5.0,5.1,5.2,6.0,6.1".split(",")
-    }
-    else {
-        var itemsLevelList = level.split(",")
-    }
+    let itemsLevelList = level ? level.split(",") : defaultLevel.split(",")
     let itemPricesList = []
-    let itemList = []
     if (await client.exists(req.originalUrl)) {
         itemPricesList = JSON.parse(await client.get(req.originalUrl))
     }
     else {
+        let resolvedPromisesArray = []
         for (let itemlevel of itemsLevelList) {
-            let enchantment = itemlevel.replace(/\d\./, "")
             let levelTag = itemlevel.replace(/\.\d/, "")
             let name = `T${levelTag}_${req.params.item}`
             let url = `https://www.albion-online-data.com/api/v2/stats/Prices/${name}.json`
-            let item = []
-            console.log(url)
-            let items = await axios.get(
-                url,
-                {
-                    params: {
-                        locations: location
-                    }
-                })
-            item.push({ name: `T${levelTag}_${req.params.item}@${enchantment}` })
-            item.push({ price: items.data[0].buy_price_max })
-            itemList.push(item)
+            console.log("獲取神器URL: " + url) //debug
+            resolvedPromisesArray.push(axios.get(url, { params: { locations: location } }))
         }
-        for (let item of itemList) {
-            itemPricesList.push({ item: item })
+        console.log("------------------------------獲取神器URL分隔線------------------------------") //debug
+        try {
+            let items = await Promise.all(resolvedPromisesArray);
+            itemPricesList = items.map(res => {
+                return { item: [{ name: res.data[0].item_id }, { price: res.data[0].sell_price_min }] };
+            })
+        } catch (error) {
+            res.status(500).send(error);
         }
         let zeroPriceItem = itemPricesList.find(data => data.item[1].price === 0)
         if (typeof (zeroPriceItem) == "undefined") {
@@ -189,5 +130,4 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
 app.listen(port, async () => {
     await client.connect()
     console.log(`Example app listening on port ${port}`)
-    cache()
 })
