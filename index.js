@@ -11,6 +11,10 @@ const client = redis.createClient({
 const expires = 24 * 60 * 60 * 7
 const defaultLevel = "4.0,4.1,4.2,5.0,5.1,5.2,6.0,6.1"
 
+app.use(express.static('public'))
+app.get('/', (req, res) => {
+    res.sendFile('index.html', { root: path.join(__dirname, 'public') });
+})
 app.get('/api/prices/resource/:item', async (req, res) => {
     let { level, location } = req.query || ""
     let itemsLevelList = level ? level.split(",") : defaultLevel.split(",")
@@ -131,3 +135,5 @@ app.listen(port, async () => {
     await client.connect()
     console.log(`Example app listening on port ${port}`)
 })
+
+module.exports = app
