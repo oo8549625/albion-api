@@ -1,20 +1,21 @@
-const express = require('express')
+const express = require('express');
+const app = express();
+const path = require('path');
 const xml = require("xml");
-const axios = require("axios")
-const app = express()
-const port = process.env.PORT || 3000
+const axios = require("axios");
+const port = process.env.PORT || 3000;
 const redis = require("redis");
 const client = redis.createClient({
-    url: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
-    password: process.env.REDIS_PASSWORD || "secret"
+    url: process.env.REDIS_URL || 'redis://default:redispw@localhost:49153',
+    password: process.env.REDIS_PASSWORD || ""
 });
-const expires = 24 * 60 * 60 * 7
-const defaultLevel = "4.0,4.1,4.2,5.0,5.1,5.2,6.0,6.1"
+const expires = 24 * 60 * 60 * 7;
+const defaultLevel = "4.0,4.1,4.2,5.0,5.1,5.2,6.0,6.1";
 
-app.use(express.static('public'))
+app.use(express.static('public'));
 app.get('/', (req, res) => {
     res.sendFile('index.html', { root: path.join(__dirname, 'public') });
-})
+});
 app.get('/api/prices/resource/:item', async (req, res) => {
     let { level, location } = req.query || ""
     let itemsLevelList = level ? level.split(",") : defaultLevel.split(",")
@@ -49,7 +50,7 @@ app.get('/api/prices/resource/:item', async (req, res) => {
     }
     res.header("Content-Type", "application/xml");
     res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
-})
+});
 
 app.get('/api/prices/equip/:item', async (req, res) => {
     let { level, location } = req.query || ""
@@ -94,7 +95,7 @@ app.get('/api/prices/equip/:item', async (req, res) => {
     }
     res.header("Content-Type", "application/xml");
     res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
-})
+});
 
 app.get('/api/prices/artifact/:item', async (req, res) => {
     let { level, location } = req.query || ""
@@ -129,11 +130,11 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
     }
     res.header("Content-Type", "application/xml");
     res.status(200).send(xml([{ marketResponse: itemPricesList }], true));
-})
+});
 
 app.listen(port, async () => {
     await client.connect()
     console.log(`Example app listening on port ${port}`)
-})
+});
 
-module.exports = app
+module.exports = app;
