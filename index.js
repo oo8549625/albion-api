@@ -22,10 +22,12 @@ app.get('/api/prices/resource/:item', async (req, res) => {
     let { level, location } = req.query
     let itemsLevelList = level ? level.split(',') : defaultLevel.split(',')
     let itemPricesList = []
-    if (await client.exists(req.originalUrl)) {
+    try {
         itemPricesList = JSON.parse(await client.get(req.originalUrl))
+    } catch (error) {
+        console.log(error)
     }
-    else {
+    if (!itemPricesList) {
         let resolvedPromisesArray = []
         for (let itemlevel of itemsLevelList) {
             let enchantment = itemlevel.replace(/\d\./, '')
@@ -58,10 +60,12 @@ app.get('/api/prices/equip/:item', async (req, res) => {
     let { level, location } = req.query
     let itemsLevelList = level ? level.split(',') : defaultLevel.split(',')
     let itemPricesList = []
-    if (await client.exists(req.originalUrl)) {
+    try {
         itemPricesList = JSON.parse(await client.get(req.originalUrl))
+    } catch (error) {
+        console.log(error)
     }
-    else {
+    if (!itemPricesList) {
         let resolvedPromisesArray = []
         for (let itemlevel of itemsLevelList) {
             let enchantment = itemlevel.replace(/\d\./, '')
@@ -103,10 +107,12 @@ app.get('/api/prices/artifact/:item', async (req, res) => {
     let { level, location } = req.query
     let itemsLevelList = level ? level.split(',') : defaultLevel.split(',')
     let itemPricesList = []
-    if (await client.exists(req.originalUrl)) {
+    try {
         itemPricesList = JSON.parse(await client.get(req.originalUrl))
+    } catch (error) {
+        console.log(error)
     }
-    else {
+    if (!itemPricesList) {
         let resolvedPromisesArray = []
         for (let itemlevel of itemsLevelList) {
             let levelTag = itemlevel.replace(/\.\d/, '')
