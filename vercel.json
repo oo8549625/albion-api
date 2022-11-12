@@ -12,7 +12,15 @@
             "dest": "index.js"
         },
         {
-            "src": "/api/prices/(.*)",
+            "src": "/api/prices/resource/(.*)",
+            "dest": "index.js"
+        },
+        {
+            "src": "/api/prices/equip/(.*)",
+            "dest": "index.js"
+        },
+        {
+            "src": "/api/prices/artifact/(.*)",
             "dest": "index.js"
         }
     ]
