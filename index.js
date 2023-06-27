@@ -6,8 +6,7 @@ const axios = require('axios');
 const port = process.env.PORT || 3000;
 const redis = require('redis');
 const client = redis.createClient({
-    url: process.env.REDIS_URL || 'redis://default:redispw@localhost:49153',
-    password: process.env.REDIS_PASSWORD || ''
+    url: process.env.REDIS_URL || 'redis://default:redispw@localhost:49153'
 });
 client.on("error", (err) => console.error("redis client err", err));
 const expires = 24 * 60 * 60 * 7;
