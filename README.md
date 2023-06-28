@@ -9,6 +9,6 @@ docker run -it -d --network host --restart always --name redis -v redis:/data re
 
 
 ### redis 部屬
-https://studio.mogenius.com/studio/cloud-space/cloud-space-overview
+https://app.redislabs.com/#/subscriptions/subscription/2081239/bdb
 ### 服務部屬
 https://vercel.com/oo8549625/albion-api
